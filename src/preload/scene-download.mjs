@@ -18,7 +18,7 @@ const result = await downloadScene(sceneUrl, dstPath, (resource, dstPath, progre
 
 if (!result) {
     console.error("Error downloading scene file. Check remote URL and write permissions on destination path");
-    process.exit(-2);
+    process.exit(1);
 }
 
 console.log(`Scene downloaded at ${result.mainSceneFilePath}`);

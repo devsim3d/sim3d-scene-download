@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Download scene tool",
+            "program": "${workspaceFolder}/src/preload/scene-download.mjs",
+            "args": [
+                "http://172.23.112.20:5005/api/v1/bg2scene/2/scene.vitscnj",
+                "${workspaceFolder}/scenes/test-scene-3"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node"
+        },
+
+        {
             "type": "node",
             "request": "launch",
             "name": "Electron: Main",
