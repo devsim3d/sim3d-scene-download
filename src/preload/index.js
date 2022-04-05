@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const Sim3DAPI = require('./Sim3DAPI');
 
 const exec = require('child_process').exec;
 
@@ -39,6 +40,12 @@ contextBridge.exposeInMainWorld('fsAPI', {
                 }
             })
         })
+    },
+
+    async getAvailableScenes(serverUrl) {
+        const sim3dApi = new Sim3DAPI(serverUrl, path.join(g_appParams.paths.temp,'scene-lists'));
+        const scenes = await sim3dApi.getSceneList();
+        return scenes;
     },
 
     getDependencyVersion(name) {

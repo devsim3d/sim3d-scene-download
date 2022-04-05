@@ -8,7 +8,7 @@
             "name": "Download scene tool",
             "program": "${workspaceFolder}/src/preload/scene-download.mjs",
             "args": [
-                "http://172.23.112.20:5005/api/v1/bg2scene/2/scene.vitscnj",
+                "http://172.23.118.181:5005/api/v1/bg2scene/2/scene.vitscnj",
                 "${workspaceFolder}/scenes/test-scene-3"
             ],
             "request": "launch",
