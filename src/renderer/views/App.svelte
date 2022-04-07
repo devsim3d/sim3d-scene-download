@@ -46,6 +46,10 @@
         }
     }
 
+    const launchEnvironment = async () => {
+        await fsAPI.launchEnvironment();
+    }
+
     const openScenePath = () => {
         window.fsAPI.revealInFileExplorer(lastScenePath);
     }
@@ -76,10 +80,10 @@
 </div>
 
 <p class={statusClass}>{statusMessage}
-<!--    {#if lastScenePath !== ""}
-        <button on:click={() => openScenePath()}>Abrir</button>
+    {#if lastScenePath !== ""}
+        <button on:click={() => launchEnvironment()}>Abrir</button>
     {/if}
--->
+
 </p>
 
 <style>
