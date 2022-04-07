@@ -33,8 +33,10 @@
             const sceneName = `scene-${identifier}`;
             const scenePath = await window.fsAPI.downloadScene(sceneUrl,sceneName);
             statusClass = "success";
-            statusMessage = `Escena descargada en la ruta ${scenePath}`;
+            statusMessage = `Escena descargada en la ruta ${scenePath}. Abriendo entorno...`;
             lastScenePath = scenePath;
+
+            await fsAPI.launchEnvironment();
             
         }
         catch(err) {
@@ -74,9 +76,10 @@
 </div>
 
 <p class={statusClass}>{statusMessage}
-    {#if lastScenePath !== ""}
+<!--    {#if lastScenePath !== ""}
         <button on:click={() => openScenePath()}>Abrir</button>
     {/if}
+-->
 </p>
 
 <style>

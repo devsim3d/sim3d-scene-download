@@ -9,6 +9,25 @@ const exec = require('child_process').exec;
 let g_appParams = null;
 ipcRenderer.on('app-params', (event,params) => g_appParams = params);
 
+
+const getEnvironments = async () => {
+    const environmentsFilePath = path.join(g_appParams.paths.packagePath, "environments/environments.json");
+    const envs = await fs.promises.readFile(environmentsFilePath, {encoding:'utf-8'});
+    return JSON.parse(envs);
+}
+
+let g_environmentName = null;
+
+const getCurrentEnvironment = async () => {
+    if (!g_environmentName) {
+        const envs = await getEnvironments();
+        if (envs.length>0) {
+            g_environmentName = envs[0].name;
+        }
+    }
+    return g_environmentName;
+}
+
 contextBridge.exposeInMainWorld('fsAPI', {
     async writeFile(path, content, options) {
         return await fs.promises.writeFile(path, content, options);
@@ -18,11 +37,33 @@ contextBridge.exposeInMainWorld('fsAPI', {
         return g_appParams;
     },
 
-    downloadScene(sceneFileUrl, dstPath) {
-        return new Promise((resolve, reject) => {
-            console.log(g_appParams);
+    async getCurrentEnvironment() {
+        return await getCurrentEnvironment();
+    },
 
-            const scenePath = path.join(path.join(g_appParams.paths.packagePath, 'scenes'), dstPath);
+    async getEnvironments() {
+        return await getEnvironments();
+    },
+
+    async launchEnvironment() {
+        const env = await getCurrentEnvironment();
+        const envPath = path.join(path.join('environments', env), `${env}.exe`);
+        console.log(envPath);
+        exec(envPath, (err, stdout, stderr) => {
+            if (err) {
+                console.error(err);
+            }
+            console.log(stdout);
+            console.log(stderr);
+        });
+    },
+
+    downloadScene(sceneFileUrl) {
+        return new Promise(async (resolve, reject) => {
+            
+            const env = await getCurrentEnvironment();
+
+            const scenePath = path.join(g_appParams.paths.packagePath, 'scene');
             const command = 'node "' + __dirname + `/scene-download.mjs" ${sceneFileUrl} "${scenePath}"`;
             exec(command,
             {},
