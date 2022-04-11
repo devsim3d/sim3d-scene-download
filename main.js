@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, shell} = require('electron');
+const {app, BrowserWindow, ipcMain, shell, protocol} = require('electron');
 const path = require('path');
 
 const exec = app.getPath("exe");
@@ -27,7 +27,8 @@ const createWindow = () => {
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, 'src/preload/index.js')
+            preload: path.join(__dirname, 'src/preload/index.js'),
+            webSecurity: false
         }
     });
 

@@ -11,9 +11,25 @@ ipcRenderer.on('app-params', (event,params) => g_appParams = params);
 
 
 const getEnvironments = async () => {
-    const environmentsFilePath = path.join(g_appParams.paths.packagePath, "environments/environments.json");
-    const envs = await fs.promises.readFile(environmentsFilePath, {encoding:'utf-8'});
-    return JSON.parse(envs);
+    const environmentsFilePath = path.join(g_appParams.paths.packagePath, "environments");
+    const elements = fs.readdirSync(environmentsFilePath)
+        .filter(dir => {
+            return fs.statSync(path.join(environmentsFilePath,dir)).isDirectory()
+        })
+        .map(dir => {
+            const appPath = path.join(environmentsFilePath,dir);
+            const exec = path.join(appPath,fs.readdirSync(appPath).find(item => {
+                if (path.extname(item) === '.exe') {
+                    return true;
+                }
+            }))
+            return {
+                name: dir,
+                exec,
+                thumb: path.join(appPath,'thumb.png')
+            }
+        });
+    return elements;
 }
 
 let g_environmentName = null;
@@ -45,11 +61,27 @@ contextBridge.exposeInMainWorld('fsAPI', {
         return await getEnvironments();
     },
 
+    async setCurrentEnvironment(name) {
+        const envs = await getEnvironments();
+        if (envs.find(e => e.name === name)) {
+            g_environmentName = name;
+            return g_environmentName;
+        }
+        else {
+            throw new Error("Environment not found");
+        }
+    },
+
     async launchEnvironment() {
-        const env = await getCurrentEnvironment();
-        const envPath = path.join(path.join('environments', env), `${env}.exe`);
-        console.log(envPath);
-        exec(envPath, (err, stdout, stderr) => {
+        const currentEnvName = await getCurrentEnvironment();
+        const envData = (await getEnvironments()).find(env => {
+            console.log(env);
+            if (env.name === currentEnvName) {
+                return true;
+            }
+        });
+        console.log('Launching environment ' + envData.exec);
+        exec(envData.exec, (err, stdout, stderr) => {
             if (err) {
                 console.error(err);
             }
