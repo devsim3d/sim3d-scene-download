@@ -81,7 +81,7 @@ contextBridge.exposeInMainWorld('fsAPI', {
             }
         });
         console.log('Launching environment ' + envData.exec);
-        exec(envData.exec, (err, stdout, stderr) => {
+        exec(`"${envData.exec}"`, (err, stdout, stderr) => {
             if (err) {
                 console.error(err);
             }

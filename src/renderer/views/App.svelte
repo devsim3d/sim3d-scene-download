@@ -68,6 +68,23 @@
 
 </script>
 
+<div class="environment-list">
+    <table>
+        <tr class="table-header">
+            <th>Entorno</th>
+            <th>Miniatura</th>
+        </tr>
+        {#each environments as env}
+            <tr class={env.name === currentEnv ? "current" : ""} on:click={async () => await setEnvironment(env.name)}>
+                <th>
+                    {env.name}
+                </th>
+                <th><img src={env.thumb} alt={env.thumb} /></th>
+            </tr>
+        {/each}
+    </table>
+</div>
+
 <input type="text" bind:value={sim3dServerUrl} />
 <button on:click={async () => await loadScenes()}>Listar Escenas</button>
 <div class="scene-list">
@@ -90,22 +107,7 @@
     </table>
 </div>
 
-<div class="environment-list">
-    <table>
-        <tr class="table-header">
-            <th>Entorno</th>
-            <th>Miniatura</th>
-        </tr>
-        {#each environments as env}
-            <tr class={env.name === currentEnv ? "current" : ""} on:click={async () => await setEnvironment(env.name)}>
-                <th>
-                    {env.name}
-                </th>
-                <th><img src={env.thumb} alt={env.thumb} /></th>
-            </tr>
-        {/each}
-    </table>
-</div>
+
 
 <p class={statusClass}>{statusMessage}
     {#if lastScenePath !== ""}
