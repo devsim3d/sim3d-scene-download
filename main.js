@@ -25,7 +25,7 @@ const appParams = {
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
-        height: 800,
+        height: 900,
         icon:'images/favicon.svg',
         webPreferences: {
             preload: path.join(__dirname, 'src/preload/index.js'),
