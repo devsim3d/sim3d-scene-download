@@ -54,8 +54,8 @@ class Sim3DAPI {
         }
     }
 
-    async getSceneList() {
-        const endpoint = this._serverAddress + 'api/v1/scenes';
+    async getSceneList(clientId = "") {
+        const endpoint = this._serverAddress + 'api/v1/scenes?clientId=' + clientId;
         const dstPath = path.join(this._tmpPath,'sim3d-scene-download');
         await createDstPath(dstPath);
         const dstFilePath = await downloadFile(endpoint, dstPath, this._downloadProtocol);

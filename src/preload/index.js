@@ -115,9 +115,9 @@ contextBridge.exposeInMainWorld('fsAPI', {
         })
     },
 
-    async getAvailableScenes(serverUrl) {
+    async getAvailableScenes(serverUrl, clientId) {
         const sim3dApi = new Sim3DAPI(serverUrl, path.join(g_appParams.paths.temp,'scene-lists'));
-        const scenes = await sim3dApi.getSceneList();
+        const scenes = await sim3dApi.getSceneList(clientId);
         return scenes;
     },
 

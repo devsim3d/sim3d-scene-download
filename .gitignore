@@ -3,3 +3,4 @@ out/
 scenes
 environments
 scene
+.DS_Store

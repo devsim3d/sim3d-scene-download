@@ -10,11 +10,72 @@
     let environments = [];
     let currentEnv = "";
 
+    let currentClient = null;
+    let user;
+    let pass;
+    let userToken = null;
+    let clientList = [];
+
+    const loadClients = async () => {
+        const headers = new Headers();
+        headers.append('x-access-token',userToken);
+        const listClientsRequest = await fetch(`${ sim3dServerUrl }/api/v1/clients`, {
+            method: 'GET',
+            headers
+        });
+        if (listClientsRequest.ok) {
+            const listClientData = await listClientsRequest.json();
+            clientList = listClientData.data.map(({ id, name }) => ({ id, name }));
+            currentClient = clientList.length && clientList[0].id || null;
+            if (currentClient) {
+                loadScenes();
+            }
+        }
+        else {
+            statusMessage = "Error inesperado al cargar el listado de clientes. Cierre sesión y vuelva a entrar, y si el problema persiste, consulte con Grupo SIM";
+            statusClass = "fail";
+        }
+    }
+
+    const doLogin = async (evt) => {
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        const headers = new Headers();
+        headers.append('Content-Type','application/json');
+        const body = JSON.stringify({ user, pass });
+
+        const loginResponse = await fetch(`${ sim3dServerUrl }/api/v1/login`, {
+            method: 'POST',
+            body,
+            headers,
+            redirect: 'follow'
+        });
+        if (loginResponse.ok) {
+            const loginData = await loginResponse.json();
+            userToken = loginData.token;
+            await loadClients();
+        }
+        else {
+            statusMessage = "Login error: check your user name and password";
+            statusClass = "fail";
+        }
+    }
+
+    const logout = () => {
+        userToken = null;
+    }
+
+    const clientChanged = async (evt) => {
+        currentClient = evt.target.value;
+        await loadScenes();
+    }
+
     const loadScenes = async () => {
         try {
             statusMessage = "Obteniendo lista de escenas";
             statusClass = "progress";
-            const scenesList = await window.fsAPI.getAvailableScenes(sim3dServerUrl);
+            const scenesList = await window.fsAPI.getAvailableScenes(sim3dServerUrl,currentClient);
             scenes = scenesList.scenes;
             statusMessage = "";
             statusClass = "success";
@@ -63,6 +124,7 @@
     onMount(async () => {
         environments = await window.fsAPI.getEnvironments();
         currentEnv = await window.fsAPI.getCurrentEnvironment();
+        userToken = null;
     })
 
 </script>
@@ -84,27 +146,54 @@
     </table>
 </div>
 
-<input type="text" bind:value={sim3dServerUrl} />
-<button on:click={async () => await loadScenes()}>Listar Escenas</button>
-<div class="scene-list">
-    <table>
-        <tr class="table-header">
-            <th><h1>Escena</h1></th>
-            <th><h1>Nombre</h1></th>
-            <th><h1>Vista Previa</h1></th>
-        </tr>
-        {#each scenes as scene}
-            <tr>
-                <th>
-                    {scene.id}
-                    <button on:click={async () => await downloadScene(scene.id)}>Descargar</button>
-                </th>
-                <th>{scene.name}</th>
-                <th><img src={scene.screenshot} alt={scene.name} /></th>
-            </tr>
+
+{#if userToken === null}
+    <div>
+        <h1>Login</h1>
+        <input type="text" bind:value={sim3dServerUrl} />
+        <form on:submit={doLogin}>
+            <div>
+                <label for="user">User</label>
+                <input type="text" id="user" bind:value={user}/>
+            </div>
+            <div>
+                <label for="pass">Password</label>
+                <input type="password" id="pass" bind:value={pass}/>
+            </div>
+            <div>
+                <button type="submit">Login</button>
+            </div>
+        </form>
+    </div>
+{:else}
+    <label for="currentClient">Cliente:</label>
+    <select id="currentClient" on:change={clientChanged}>
+        {#each clientList as client }
+            <option value={client.id}>{client.name}</option>
         {/each}
-    </table>
-</div>
+    </select>
+    <button on:click={logout}>Cerrar Sesión</button>
+    <div class="scene-list">
+        <table>
+            <tr class="table-header">
+                <th><h1>Escena</h1></th>
+                <th><h1>Nombre</h1></th>
+                <th><h1>Vista Previa</h1></th>
+            </tr>
+            {#each scenes as scene}
+                <tr>
+                    <th>
+                        {scene.id}
+                        <button on:click={async () => await downloadScene(scene.id)}>Descargar</button>
+                    </th>
+                    <th>{scene.name}</th>
+                    <th><img src={scene.screenshot} alt={scene.name} /></th>
+                </tr>
+            {/each}
+        </table>
+    </div>
+{/if}
+
 
 
 
